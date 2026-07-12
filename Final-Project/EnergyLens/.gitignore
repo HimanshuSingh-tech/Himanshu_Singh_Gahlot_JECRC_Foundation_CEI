@@ -1,0 +1,21 @@
+# Python cache files
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/.venv/
+**/venv/
+**/.env
+
+# IDE / System files
+.vscode/
+.idea/
+.DS_Store
+
+# Large datasets
+data/raw/daily_dataset/
+data/raw/halfhourly_dataset/
+data/raw/hhblock_dataset/
+data/raw/daily_dataset.csv
+data/processed/master_daily.csv
+data/processed/master_daily.parquet
+data/processed/master_features.parquet
