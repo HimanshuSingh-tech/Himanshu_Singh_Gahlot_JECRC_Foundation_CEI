@@ -1,0 +1,12 @@
+Download the dataset from:
+https://www.kaggle.com/datasets/jeanmidev/smart-meters-in-london
+
+Extract ALL files into this folder (data/raw/).
+
+Expected files after extraction:
+- informations_households.csv
+- daily_dataset.csv (or daily_dataset/ folder with block CSVs)
+- halfhourly_dataset/ (folder with block CSVs)
+- acorn_details.csv
+- weather_daily_darksky.csv
+- weather_hourly_darksky.csv

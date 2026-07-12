@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnergyLens-AI — Grid Analytics Dashboard</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-logo"></span>
+                <span class="brand-name">EnergyLens AI</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="search-household">Search Household ID</label>
+                <div class="search-container">
+                    <input type="text" id="search-household" placeholder="Search by LCLid...">
+                </div>
+                <select id="select-household" size="6">
+                    <!-- Dynamically loaded -->
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="weather-preset">Weather Simulation</label>
+                <select id="weather-preset">
+                    <option value="winter">Cold Winter Snap</option>
+                    <option value="spring">Mild Spring/Autumn</option>
+                    <option value="summer">Heatwave Peak</option>
+                    <option value="custom">Custom Parameters</option>
+                </select>
+            </div>
+            
+            <div id="custom-weather-sliders" class="hidden">
+                <div class="control-group">
+                    <label for="temp-slider">Avg Temperature: <span id="temp-val">15.0</span>°C</label>
+                    <input type="range" id="temp-slider" min="-5" max="35" value="15" step="0.5">
+                </div>
+                <div class="control-group">
+                    <label for="range-slider">Diurnal Range: <span id="range-val">6.0</span>°C</label>
+                    <input type="range" id="range-slider" min="2" max="15" value="6" step="0.5">
+                </div>
+            </div>
+            
+            <button id="btn-run-forecast" class="btn-primary">Execute Forecast</button>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header-container">
+                <div class="header-text">
+                    <h1 class="header-title">Smart Meter Predictive Analytics</h1>
+                    <p class="header-subtitle">Machine learning pipelines for load forecasting, anomaly tracking, and demand optimization.</p>
+                </div>
+            </header>
+
+            <!-- Home Profile & Metrics -->
+            <section class="profile-section">
+                <div class="profile-card">
+                    <h3>Household Profile</h3>
+                    <div class="profile-item">
+                        <span class="label">LCLid Reference:</span>
+                        <span id="profile-id" class="value">-</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="label">Segment Archetype:</span>
+                        <span id="profile-archetype" class="badge">Loading...</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="label">Acorn Demographics:</span>
+                        <span id="profile-demographics" class="value">-</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="label">Historical Span:</span>
+                        <span id="profile-history-days" class="value">-</span>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-title">Mean Daily Load</div>
+                        <div class="metric-value-container">
+                            <span id="metric-avg" class="metric-value">-</span>
+                            <span class="metric-unit">kWh</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Thermal Sensitivity</div>
+                        <div class="metric-value-container">
+                            <span id="metric-thermal" class="metric-value">-</span>
+                            <span class="metric-unit">x</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Weekend Bias</div>
+                        <div class="metric-value-container">
+                            <span id="metric-weekend" class="metric-value">-</span>
+                            <span class="metric-unit">x</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabs -->
+            <section class="tab-section">
+                <div class="tab-headers">
+                    <button class="tab-btn active" data-tab="forecasting">Load Forecasting & Anomalies</button>
+                    <button class="tab-btn" data-tab="insights">Diagnostic Insights</button>
+                </div>
+
+                <!-- Tab 1: Forecasting -->
+                <div class="tab-content active" id="tab-forecasting">
+                    <!-- Weather 7-Day cards -->
+                    <div class="weather-row" id="weather-cards-container">
+                        <!-- Loaded dynamically -->
+                    </div>
+                    
+                    <!-- Alert box -->
+                    <div id="anomaly-alert-box" class="alert-box hidden">
+                        <div class="alert-content">
+                            <span class="alert-tag">Anomaly Detected</span>
+                            <span class="alert-text">Spike warnings issued for: <span id="anomaly-days">-</span>.</span>
+                        </div>
+                    </div>
+
+                    <!-- Forecast Plot -->
+                    <div class="chart-container-large">
+                        <canvas id="chart-forecast"></canvas>
+                    </div>
+
+                    <!-- Recommendation Card -->
+                    <div id="recs-card" class="recs-card">
+                        <h3 id="recs-title">Demand Side Management Recommendation</h3>
+                        <p id="recs-obs" class="recs-obs"></p>
+                        <p id="recs-strategy" class="recs-strategy"></p>
+                        <div class="recs-action-box">
+                            <span class="action-tag">Operational Directive:</span>
+                            <span id="recs-action" class="action-text"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Insights -->
+                <div class="tab-content" id="tab-insights">
+                    <div class="insights-grid">
+                        <div class="chart-card">
+                            <h4>Weather Sensitivity regression</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chart-temp-scatter"></canvas>
+                            </div>
+                            <p class="chart-caption">Linear regression of daily energy usage against average temperature. A steep negative slope indicates high thermal heating sensitivity.</p>
+                        </div>
+                        <div class="chart-card">
+                            <h4>Weekday vs. Weekend Load Profile</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chart-weekend-bar"></canvas>
+                            </div>
+                            <p class="chart-caption">Comparison of average demand profiles to identify load shifting elasticity and peak shaving capacity.</p>
+                        </div>
+                    </div>
+
+                    <div class="chart-card large-width">
+                        <h4>30-Day Historical Baseline & Outlier Detection</h4>
+                        <div class="chart-wrapper-large">
+                            <canvas id="chart-hist-timeline"></canvas>
+                        </div>
+                        <p class="chart-caption">Recent history log. Red data points indicate historical anomaly flags where consumption exceeded the threshold boundary (Mean + 2 Standard Deviations).</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
